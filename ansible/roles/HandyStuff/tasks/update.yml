@@ -1,0 +1,7 @@
+---
+  - name: "Update all Packages" # yes yes - should not be done on real enviroment
+    package: 
+      name: "*"
+      force_apt_get: yes
+      state: latest
+    become: yes

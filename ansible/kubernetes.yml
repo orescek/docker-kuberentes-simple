@@ -1,0 +1,8 @@
+---
+  - hosts: km 
+    vars_files:
+     - vars/enviroment.yml
+    roles:
+     - role: HandyStuff
+     - role: kubernetes
+     - role: Haproxy

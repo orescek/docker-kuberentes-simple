@@ -1,0 +1,9 @@
+FROM golang:1.8
+
+WORKDIR /app
+ADD digitalsignage_linux_64 /app/digitalsignage_linux_64
+EXPOSE {{ app_port }}
+
+RUN chmod +x /app/digitalsignage_linux_64
+
+CMD ["/app/digitalsignage_linux_64","-port","{{ app_port }}"]

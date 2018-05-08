@@ -1,0 +1,17 @@
+---
+  myhosts:
+    - { name: "dm", long_name: "dm.docker", ip: "192.168.101.10"}
+    - { name: "km", long_name: "km.kubernetes", ip: "192.168.101.11"}
+
+  app_name: "myapp"
+  app_version: "v1"
+  #app_tag_name: "{{ ansible_date_time.epoch }}-{{ app_name }}"
+  app_port: 3000
+
+
+
+  minikube_install_dir: /usr/local/bin
+  minikube_version: v0.26.1
+  kubectl_version: v1.10.2
+  docker_machine_version: v0.14.0
+  docker_machine_xhyve_driver_version: v0.3.3

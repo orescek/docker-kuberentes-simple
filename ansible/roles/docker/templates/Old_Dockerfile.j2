@@ -1,0 +1,7 @@
+FROM golang:1.8
+
+WORKDIR /app
+ADD app.go /app/{{ app_name }}.go
+EXPOSE {{ app_port }}
+
+CMD ["go", "run", "{{ app_name }}.go"]

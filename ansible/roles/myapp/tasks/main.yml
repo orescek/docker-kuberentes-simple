@@ -1,0 +1,6 @@
+---
+  - name: Copy my app
+    template:
+      src: app.go.j2
+      dest: /home/vagrant/app.go
+    become: yes  

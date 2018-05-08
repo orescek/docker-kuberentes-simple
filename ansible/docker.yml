@@ -1,0 +1,8 @@
+---
+- hosts: dm
+  vars_files:
+    - vars/enviroment.yml
+  roles:
+    - role: HandyStuff
+    - role: myapp
+    - role: docker

@@ -1,0 +1,33 @@
+---
+  - name: Copy docker file
+    template:
+      src: Dockerfile.j2
+      dest: /home/vagrant/Dockerfile
+    become: yes
+    tags: docker 
+
+  - name: copy app
+    copy:
+      src: digitalsignage_linux_64
+      dest:  /home/vagrant/digitalsignage_linux_64
+      group: vagrant
+      owner: vagrant
+      mode: "u+x,g+x,o+x"
+    tags: docker
+
+  - pip:
+      name: docker-py
+    become: yes
+
+  - name: build docker image
+    command: docker build -t {{ app_name }}:{{ app_version }} /home/vagrant/
+    tags: docker
+
+  - name: save image
+    command: docker save -o /home/vagrant/{{ app_name }}.tar {{ app_name }}
+    tags: docker
+
+  - name: mv image to shared folder
+    command: mv {{ app_name }}.tar /vagrant
+    tags: docker
+    become: yes
