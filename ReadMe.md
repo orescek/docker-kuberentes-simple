@@ -3,6 +3,8 @@ It uses code from this github:
 https://github.com/visionect/digitalsignage
 Binary is stored in this repo also.
 
+You should have Ansible installed on your system. Version should be 2.0 or grater.
+
 # Setup
 
 Checkout from git repo.
@@ -19,7 +21,7 @@ Takes round 5-10 minutes to start.
 In your browser run localhost:3000 --> default port
 
 # How it works:
-Uses Vagrant for enviroment. Ansible for provison. I used also vagrant docker provison but just to install docker - nice hack :)
+Uses Vagrant for environment. Ansible for provision . I used also vagrant docker provision but just to install docker - nice hack :)
 
 in roles there are:
 - docker 
@@ -40,10 +42,10 @@ cd ..
 
 - First problem
 
-Ansible does not have fail swithc and somethimes ssh timouts(usaually km machine) - I will look into it some day 
+Ansible does not have fail switch and somethimes ssh timeouts (usually km machine) - I will look into it some day 
 If that happens the best way is to do <code> vagrant destroy</code> and then again <code> vagrant up </code> 
 You can destroy just machine that failed. 
 
  - Second problem
 
-Once ansible is runed kubernetes machine cannot be provisioned again. I made some tags so that you can skip problematic provisions. This can be resolved with ansible checks but there was no time for this - some day as usuall :)
+Once ansible is run kubernetes machine cannot be provisioned again. I made some tags so that you can skip problematic provisions. This can be resolved with ansible checks but there was no time for this - some day as usuall :)
