@@ -1,0 +1,20 @@
+replicaCount: {{ app_replicas }}
+
+image:
+  repository: {{ app_name }} 
+  tag: {{ app_version }}
+  pullPolicy: IfNotPresent
+
+service:
+  name: {{ app_name }}
+  type: NodePort
+  externalPort: {{ app_port }}
+  internalPort: {{ app_port }}
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

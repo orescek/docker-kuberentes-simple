@@ -42,8 +42,8 @@ Vagrant.configure(2) do |config|
     km.vm.provision "ansible" do |ansible|
          ansible.inventory_path="ansible/provision/inventory"
          ansible.playbook = "ansible/kubernetes.yml"  
-         #ansible.tags="kube"
-        #ansible.tags="haproxy"
+       #  ansible.tags="kube"
+       # ansible.tags="haproxy"
     end
 
   end

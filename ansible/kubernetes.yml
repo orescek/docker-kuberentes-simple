@@ -5,4 +5,5 @@
     roles:
      - role: HandyStuff
      - role: kubernetes
+     - role: helm
      - role: Haproxy

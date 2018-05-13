@@ -1,33 +1,41 @@
 ---
- - name: install haproxy
-   package: 
-    name: haproxy 
-    state: present
-   become: yes
-   tags: haproxy   
+  - name: install haproxy
+    package: 
+      name: haproxy 
+      state: present
+    become: yes
+    tags: haproxy   
 
- - name: get IP
-   shell: echo $(kubectl get svc {{ app_name }} | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}')
-   register: run_app_ip
-   become: yes
-   tags: haproxy
+  # before helm
+  # - name: get IP
+  #   shell: echo $(kubectl get svc {{ app_name }} | grep -o '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}')
+  #   register: run_app_ip
+  #   become: yes
+  #   tags: haproxy
 
- - name: "copy conf"
-   template:
-    src: haproxy.cfg.j2
-    dest: /etc/haproxy/haproxy.cfg
-   become: yes
-   tags: haproxy
+  - name: get PORT
+    shell: echo $(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services {{ app_name }}-{{ app_name }})
+    register: run_app_port
+    become: yes
+    tags: haproxy
 
- - name: Flush 
-   command: iptables -F
-   become: yes
-   tags: haproxy
+  - name: get IP
+    shell: echo $(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+    register: run_app_ip
+    become: yes
+    tags: haproxy
 
- - name: start haproxy
-   service: 
-    name: haproxy 
-    state: restarted
-   become: yes
-   tags: haproxy 
+  - name: "copy conf"
+    template:
+      src: haproxy.cfg.j2
+      dest: /etc/haproxy/haproxy.cfg
+    become: yes
+    tags: haproxy
+
+  - name: start haproxy
+    service: 
+      name: haproxy 
+      state: restarted
+    become: yes
+    tags: haproxy 
 

@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: myapp 
+  tag: v1
+  pullPolicy: IfNotPresent
+
+service:
+  name: myapp
+  type: NodePort
+  externalPort: 3000
+  internalPort: 3000
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

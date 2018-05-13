@@ -1,0 +1,95 @@
+---
+  - name: check for installation of helm
+    become: yes
+    stat:
+      path: '{{kubernetes_helm_install_dir}}'
+    changed_when: false
+    register: kubernetes_helm_binary_dir
+    tags: helm
+
+  - when: not kubernetes_helm_binary_dir.stat.exists
+    block:
+      - name: download...
+        become: yes
+        become_user: root
+        get_url:
+          url: '{{kubernetes_helm_url}}'
+          dest: /tmp/{{kubernetes_helm_tgz}}
+          mode: 0644
+        tags: helm
+
+  - name: make install dir
+    become: yes
+    become_user: root
+    file:
+      path: '{{kubernetes_helm_install_dir}}'
+      state: directory
+      mode: 0755
+    tags: helm
+
+  - name: unarchive
+    become: yes
+    become_user: root
+    unarchive:
+      copy: no
+      src: /tmp/{{kubernetes_helm_tgz}}
+      dest: '{{kubernetes_helm_install_dir}}'
+      creates: '{{kubernetes_helm_install_dir}}/{{kubernetes_helm_platform}}'
+    tags: helm
+
+  - always:
+    - name: cleanup...
+      become: yes
+      become_user: root
+      file:
+        path: /tmp/{{kubernetes_helm_tgz}}
+        state: absent
+      tags: helm
+
+  - name: link
+    become: yes
+    become_user: root
+    with_items:
+      - helm
+    file:
+      src: '{{kubernetes_helm_install_dir}}/{{kubernetes_helm_platform}}/{{item}}'
+      dest: '{{kubernetes_helm_bin_dir}}/{{item}}'
+      state: link
+    tags: helm
+
+  - name: helm init
+    command: helm init
+    become: yes
+    tags: helm
+
+  - name: "copy charts"
+    copy:
+      src: myapp
+      dest:  /root
+    become: yes
+    tags: [ helm, helmapp ]
+
+  - name: "copy variables"
+    template:
+      src: values.yaml.j2
+      dest: /root/myapp/values.yaml
+    become: yes
+    tags: [ helm, helmapp ]
+
+  - name: "copy Chart"
+    template:
+      src: Chart.yaml.j2
+      dest: /root/myapp/Chart.yaml
+    become: yes
+    tags: [ helm, helmapp ]
+  
+  #there was a problem that helm install is up before Tiller was up
+  - pause: # pause for 45 seconds due to that not everything is started
+      seconds: 45  
+      
+  - name: start helmapp
+    command: helm install /root/myapp --name {{ app_name }} --set serviceType=NodePort
+    become: yes
+    tags: helmapp1
+
+  

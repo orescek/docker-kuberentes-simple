@@ -45,4 +45,4 @@ frontend localnodes
 backend app
     balance roundrobin
     option forwardfor
-    server {{ run_app_ip.stdout_lines[0] }} {{ run_app_ip.stdout_lines[0] }}:3000 check  ## -> this is managed with ansible
+    server {{ run_app_ip.stdout_lines[0] }} {{ run_app_ip.stdout_lines[0] }}:{{ run_app_port.stdout_lines[0] }} check  ## -> this is managed with ansible

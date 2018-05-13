@@ -2,84 +2,71 @@
   - name: install dep 
     import_tasks: dep.yml
       
-
   - name: set facts
     set_fact:
       translated_architecture: amd64
     when: ansible_architecture == 'x86_64'
 
-  - name: get binaries
-    get_url: url="{{ item.url }}" dest="{{ item.dest }}"
-    become: yes 
-    with_items:
-      - url: https://storage.googleapis.com/minikube/releases/{{ minikube_version }}/minikube-{{ ansible_system|lower }}-amd64
-        dest: "{{ minikube_install_dir }}/minikube"
-      - url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubectl_version }}/bin/{{ ansible_system|lower }}/{{ translated_architecture }}/kubectl"
-        dest: "{{ minikube_install_dir }}/kubectl"
-      - url: "https://github.com/docker/machine/releases/download/{{ docker_machine_version }}/docker-machine-{{ ansible_system }}-{{ ansible_architecture }}"
-        dest: "{{ minikube_install_dir }}/docker-machine"
-
-  - name: chmod binaries
-    file: dest="{{ minikube_install_dir }}/{{ item }}" mode=0755
-    become: yes 
-    with_items:
-      - minikube
-      - kubectl
-      - docker-machine
-
-  - name: start minikube 
-    command: minikube start --vm-driver none
+  - name: Check if minikube already installed
+    stat: 
+      path: "{{ minikube_install_dir }}/minikube"
     become: yes
-    #tags: kube
-  
+    changed_when: false
+    register: minikube_installed
+
+  - when: not minikube_installed.stat.exists 
+    block:
+      - name: get binaries
+        get_url: url="{{ item.url }}" dest="{{ item.dest }}"
+        become: yes
+        with_items:
+          - url: https://storage.googleapis.com/minikube/releases/{{ minikube_version }}/minikube-{{ ansible_system|lower }}-amd64
+            dest: "{{ minikube_install_dir }}/minikube"
+          - url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubectl_version }}/bin/{{ ansible_system|lower }}/{{ translated_architecture }}/kubectl"
+            dest: "{{ minikube_install_dir }}/kubectl"
+          - url: "https://github.com/docker/machine/releases/download/{{ docker_machine_version }}/docker-machine-{{ ansible_system }}-{{ ansible_architecture }}"
+            dest: "{{ minikube_install_dir }}/docker-machine"
+      - name: chmod binaries
+        file: dest="{{ minikube_install_dir }}/{{ item }}" mode=0755
+        become: yes 
+        with_items:
+          - minikube
+          - kubectl
+          - docker-machine
+      - name: start minikube 
+        command: minikube start --vm-driver none
+        async: 180
+        poll: 5
+        become: yes
+    become: yes
+    become_user: root
+
   - name: import docker image
     command: docker load -i /vagrant/{{ app_name }}.tar
     become: yes
-    #tags: kube
-  - name: copy_pod_config
-    template:
-      src: pod.yaml.j2
-      dest: /root/pod.yaml
-    become: yes
-    tags: kube
 
-  - name: start kubectl
-    #command: kubectl run {{ app_name }} --image={{ app_name }}:{{ app_version }} --port={{ app_port }}
-    command: kubectl create -f /root/pod.yaml
-    become: yes
-    tags: kube
+  # before helm
+  # - name: copy_pod_config
+  #   template:
+  #     src: pod.yaml.j2
+  #     dest: /root/pod.yaml
+  #   become: yes
+  #   tags: kube
 
-  - name: expose app
-    command: kubectl expose Pod {{ app_name }} --type=LoadBalancer
-    become: yes
-    tags: kube
+  # - name: start kubectl
+  #   #command: kubectl run {{ app_name }} --image={{ app_name }}:{{ app_version }} --port={{ app_port }}
+  #   command: kubectl create -f /root/pod.yaml
+  #   become: yes
+  #   tags: kube
+
+  # - name: expose app
+  #   command: kubectl expose Pod {{ app_name }} --type=LoadBalancer
+  #   become: yes
+  #   tags: kube
 
     
 
 # commanda dobiš tvojo app: kubectl get svc myapp -> podatke o njej
 
-
-#minikube start --vm-driver none #kvm2 ne dela
-
-
-# sudo docker build -t app:v1 .
-#    64  sudo kubectl run myapp --image=app:v1 --port=3000
-#    65  sudo kubectl run myapp2 --image=app:v1 --port=3000
-#    66  sudo kubectl get pods
-#    67  surl localhost:3030
-#    68  curl localhost:3000
-#    69  sudo netstat -tulpn | grep 3000
-#    70  sudo netstat -tulpn | grep 30
-#    71  sudo netstat -tulpn | grep 80
-#    72  sudo kubectl get services
-#    73  curl 10.96.0.1:3000
-#    74  sudo curl 10.96.0.1:3000
-#    75  ping 10.95.96.0.1
-#    76  kubectl expose deployment myapp2 --type=LoadBalancer
-#    77  sudo kubectl expose deployment myapp2 --type=LoadBalancer
-#    78  sudo kubectl get services
-#    79  curl localhost:3000
-#    80  curl 10.104.171.89:3000
-#    81  history
 
 
